@@ -5,5 +5,12 @@
  * @returns {object} - returns the new object
  */
 export const pick = (obj, ...fields) => {
-
+  const pickArrKeys = [...fields];
+  return Object.fromEntries(Object.entries(obj).reduce((result, [key, value]) => {
+    if (pickArrKeys.includes(key)) {
+      result.push([key, value]);
+    }
+    return result;
+  }, [])
+  );
 };
