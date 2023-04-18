@@ -5,15 +5,22 @@
  * @returns {string[]}
  */
 export function sortStrings(arr, param = 'asc') {
-  const result = [...arr];
+  const directions = {
+    asc: 1,
+    desc: -1,
+  };
+
+  const direction = directions[param];
   const langArr = ['ru', 'en'];
   const compareOptions = { caseFirst: 'upper'};
 
-  result.sort((a, b) => {
-    return param === 'asc' 
-      ? a.localeCompare(b, langArr, compareOptions)
-      : b.localeCompare(a, langArr, compareOptions);
-  });
+  if (!direction) {
+    throw new Error(`Unknow param: ${param}`);
+  }
 
-  return [...result];
+  const compareStrings = (a, b) => {
+    return direction * a.localeCompare(b, langArr, compareOptions);
+  };
+
+  return [...arr].sort(compareStrings);
 }
