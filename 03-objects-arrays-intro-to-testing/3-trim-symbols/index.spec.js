@@ -17,7 +17,6 @@ describe('objects-arrays-intro-to-testing/trim-symbols', () => {
   });
 
   it('should return the same string if "size" parameter wasn\'t specified', () => {
-    console.log(trimSymbols('aaa'));
     expect(trimSymbols('aaa')).toEqual('aaa');
   });
 });

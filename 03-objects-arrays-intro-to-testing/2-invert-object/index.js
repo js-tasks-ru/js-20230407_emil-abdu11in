@@ -21,3 +21,4 @@ export function invertObj(obj) {
 const obj = { key: 'value' };
 
 console.log(invertObj(obj)); 
+

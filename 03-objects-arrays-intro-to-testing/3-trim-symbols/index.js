@@ -35,5 +35,3 @@ export function trimSymbols(string, size) {
     .join('')
     .trim('');
 }
-
-console.log(trimSymbols('xxxaxxx', 2));
