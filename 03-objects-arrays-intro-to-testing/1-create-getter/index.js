@@ -9,7 +9,7 @@ export function createGetter(field) {
   return function (obj) {
     const isObjEmpty = !Object.keys(obj).length;
     
-    if (isObjEmpty) {return undefined;}
+    if (isObjEmpty) {return;}
 
     let result = {...obj};
     for (const key of arrKeys) {
