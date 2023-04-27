@@ -17,9 +17,7 @@ export default class ColumnChart {
   }
 
   linkTemplate() {
-    return this.link ? `
-        <a href="${this.link}" class="column-chart__link">View all</a>
-    ` : '';
+    return this.link ? `<a href="${this.link}" class="column-chart__link">View all</a>` : '';
   }
 
   bodyTemplate() {
@@ -36,31 +34,30 @@ export default class ColumnChart {
 
   get template() {
     return `
-        <div class="column-chart" style="--chart-height: ${this.chartHeight}">
-            <div class="column-chart__title">
-            Total ${this.label}
-            ${this.linkTemplate()}
-            </div>
-        <div class="column-chart__container">
-            <div data-element="header" class="column-chart__header">${this.value}</div>
-            <div data-element="body" class="column-chart__chart">
-                ${this.bodyTemplate()}
-            </div>
+      <div class="column-chart column-chart_loading" style="--chart-height: ${this.chartHeight}">
+        <div class="column-chart__title">
+          Total ${this.label}
+          ${this.linkTemplate()}
         </div>
-    </div>`;
+        <div class="column-chart__container">
+          <div data-element="header" class="column-chart__header">${this.value}</div>
+          <div data-element="body" class="column-chart__chart">
+              ${this.bodyTemplate()}
+          </div>
+        </div>
+      </div>`;
   }
 
   render() {
     const wrapper = document.createElement('div');
     wrapper.innerHTML = this.template;
-
     this.element = wrapper.firstElementChild;
 
     if (this.data.length) {
       this.element.classList.remove('column-chart_loading');
-    } else {
-      this.element.classList.add('column-chart_loading'); 
     }
+
+    this.subElements = this.getSubElements();
   }
 
   update(data = []) {
@@ -69,8 +66,19 @@ export default class ColumnChart {
     }
 
     this.data = data;
+    this.subElements.body.innerHTML = this.bodyTemplate();
+  }
 
-    this.render();
+  getSubElements() {
+    const result = {};
+    const elements = this.element.querySelectorAll("[data-element]");
+
+    for (const subElement of elements) {
+      const name = subElement.dataset.element;
+      result[name] = subElement;
+    }
+
+    return result;
   }
 
   remove() {
@@ -82,5 +90,6 @@ export default class ColumnChart {
   destroy() {
     this.remove();
     this.element = null;
+    this.subElements = null;
   }
 }
