@@ -10,12 +10,11 @@
 <script type="module">
   import NotificationMessage from './index.js';
 
-  btn1.addEventListener('click', () => {
-    const notification = new NotificationMessage('Hello World', {
-      duration: 2000,
-      type: 'success'
-    });
-
-    notification.show();
+  const btn1 = document.getElementById('btn1');
+  const notification = new NotificationMessage('Hello World', {
+    duration: 1000,
+    type: 'success'
   });
+
+  btn1.addEventListener('click', () => notification.show());
 </script>

@@ -70,6 +70,8 @@
   ];
 
   const sortableTable = new SortableTable(headerConfig, data);
+  const root = document.getElementById('root');
+  const sort = document.getElementById('sort');
 
   root.append(sortableTable.element);
 
