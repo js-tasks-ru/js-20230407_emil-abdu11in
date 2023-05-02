@@ -1,5 +1,4 @@
 export default class SortableTable {
-
   onHeaderClick = (event) => {
     const sortedCell = event.target.closest('div');
     const { sortable, id, order } = sortedCell.dataset;

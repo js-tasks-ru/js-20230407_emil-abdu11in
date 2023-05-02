@@ -1,4 +1,5 @@
 class Tooltip {
+
   pointerMove = (event) => {
     const { clientX, clientY } = event;
     this.element.style = `top: ${clientY}px; left: ${clientX}px;`;
