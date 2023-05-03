@@ -1,30 +1,39 @@
 export default class SortableTable {
   onHeaderClick = (event) => {
-    const sortedCell = event.target.closest('div');
-    const { sortable, id, order } = sortedCell.dataset;
-    const isSortable = !!sortable;
+    const sortedCell = event.target.closest('[data-sortable="true"]');
 
-    if (!isSortable) { return; }
 
-    const sorted = {
-      id,
-      order,
+    const toggleOrder = order => {
+      const orders = {
+        asc: 'desc',
+        desc: 'asc',
+      };
+
+      return orders[order];
     };
+  
+    if (sortedCell) {
+      const { id, order } = sortedCell.dataset;
+      const newOrder = toggleOrder(order);
+      const arrow = sortedCell.querySelector('.sortable-table__sort-arrow');
 
-    this.sorted = sorted;
+      sortedCell.dataset.order = newOrder;
 
-    this.sort();
-    this.update('header');
-    this.update('body');
+      if (!arrow) {
+        sortedCell.append(this.subElements.arrow);
+      }
+
+      this.sortOnClient(id, newOrder);
+      this.subElements.body.innerHTML = this.getBodyTemplate();
+    }
   }
 
   constructor(headersConfig = [], { data = [], sorted = {} } = {}) {
     this.headersConfig = headersConfig;
     this.data = data;
-    this.isSortLocally = true;
     this.sorted = sorted;
 
-    this.sort();
+    this.sortOnClient(sorted.id, sorted.order);
     this.render();
     this.initListeners();
   }
@@ -83,12 +92,6 @@ export default class SortableTable {
     return `<div data-element="loading" class="loading-line sortable-table__loading-line"></div>`;
   }
 
-  sort() {
-    if (this.isSortLocally) {
-      this.sortOnClient();
-    }
-  }
-
   render() {
     const wrapper = document.createElement('div');
 
@@ -122,14 +125,9 @@ export default class SortableTable {
     this.subElements[name].innerHTML = callMethod();
   }
 
-  sortOnClient() {
-    const directions = {
-      asc: 1,
-      desc: -1,
-    };
-
-    const direction = directions[this.sorted.order];
-    const fieldValue = this.sorted.id;
+  sortOnClient(id, order) {
+    const direction = order === 'asc' ? 1 : -1;
+    const fieldValue = id;
 
     const langArr = ['ru', 'en'];
     const { sortType } = this.headersConfig.find(obj => obj.id === fieldValue);
@@ -144,7 +142,6 @@ export default class SortableTable {
     };
 
     this.data.sort(compareStrings);
-    this.sorted.order = direction < 1 ? 'asc' : 'desc'; 
   }
 
 

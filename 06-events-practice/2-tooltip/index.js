@@ -1,55 +1,67 @@
 class Tooltip {
+  static instance;
+
+  element;
 
   pointerMove = (event) => {
+    const offset = 10;
     const { clientX, clientY } = event;
-    this.element.style = `top: ${clientY}px; left: ${clientX}px;`;
+    const top = clientY + offset + 'px';
+    const left = clientX + offset + 'px';
+
+    this.element.style = `top:${top}; left:${left}`;
   }
 
   pointerOver = (event) => {
-    const { tooltip } = event.target.dataset;
+    const element = event.target.closest('[data-tooltip]');
 
-    if (tooltip) {
+    if (element) {
+      this.render(element.dataset.tooltip);
       document.addEventListener('pointermove', this.pointerMove);
-      if (!this.element) {
-        this.render(tooltip);
-      } else {
-        this.element.innerHTML = tooltip;
-      }
-    } else {
-      this.destroy();
+    }
+  };
+
+  pointerOut = (event) => {
+    const element = event.target.closest('[data-tooltip]');
+
+    if (element) {
+      this.remove();
+      document.removeEventListener('pointermove', this.pointerMove);
     }
   };
 
   constructor() {
-    if (typeof Tooltip.instance === 'object') {
+    if (Tooltip.instance) {
       return Tooltip.instance;
     }
 
     Tooltip.instance = this;
-
-    return Tooltip.instance;
   }
 
   initialize () {
     document.addEventListener('pointerover', this.pointerOver);
+    document.addEventListener('pointerout', this.pointerOut);
   }
 
-  getTemplate(content) {
-    return `<div class="tooltip">${content}</div>`;
-  }
-
-  destroy() {
+  remove() {
     if (this.element) {
       this.element.remove();
     }
-    this.element = null;
-    document.removeEventListener('pointermove', this.pointerMove);
   }
 
-  render(content) {
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = this.getTemplate(content);
-    this.element = wrapper.firstElementChild;
+  destroy() {
+    document.removeEventListener('pointerover', this.pointerOver);
+    document.removeEventListener('pointermove', this.pointerMove);
+    document.removeEventListener('pointerout', this.pointerOut);
+    this.remove();
+    this.element = null;
+  }
+
+  render(html) {
+    this.element = document.createElement('div');
+    this.element.className = 'tooltip';
+    this.element.innerHTML = html;
+    
     document.body.append(this.element);
   }
 }
