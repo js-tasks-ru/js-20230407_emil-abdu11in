@@ -21,6 +21,11 @@
     <script type="module">
       import ColumnChart from './index.js';
 
+      const orders = document.getElementById('orders');
+      const sales = document.getElementById('sales');
+      const customers = document.getElementById('customers');
+      const loadOrders = document.getElementById('loadOrders');
+
       const getRange = () => {
         const now = new Date();
         const to = new Date();
