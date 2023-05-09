@@ -65,7 +65,15 @@ export default class ProductForm {
   constructor (productId) {
     this.productId = productId;
     this.categories = [];
-    this.formData = {};
+    this.formData = {
+      status: 1,
+      title: '',
+      description: '',
+      discout: 0,
+      price: 0,
+      quantity: 0,
+      images: [],
+    };
     this.isEdit = !!productId;
     this.images = [];
   }
@@ -77,38 +85,33 @@ export default class ProductForm {
         result.push(new Option(category.title + " > " + subcategory.title, subcategory.id));
       }
     }
-    
-    this.subElements.productForm.subcategory.append(...result);
+    const wrapper = document.createElement('div');
+    wrapper.append(...result);
+
+    return wrapper.innerHTML;
   }
 
-  async fetchCategories() {
+  fetchCategories() {
     const categoryUrl = new URL('/api/rest/categories', BACKEND_URL);
 
     categoryUrl.searchParams.set('_sort', 'weight');
     categoryUrl.searchParams.set('_refs', 'subcategory');
 
-    const res = await fetchJson(categoryUrl);
-    this.categories = res;
-
-    this.renderCategories();
-
-    if (this.isEdit) {
-      this.subElements.productForm.subcategory.value = this.product.subcategory;
-    }
+    return fetchJson(categoryUrl);
   }
 
   remove() {
-    if (this.element) {
-      this.element.remove();
-    }
+    this.element.remove();
   }
 
   destroy() {
     this.element.remove();
+    this.element = null;
+    this.subElements = null;
   }
 
   initEventListeners() {
-    this.subElements.productForm.uploadImage.addEventListener('click', e => this.uploadImage(e));
+    this.subElements.productForm.uploadImage.addEventListener('pointerdown', e => this.uploadImage(e));
     this.subElements.productForm.addEventListener("submit", e => this.onSubmit(e));
   }
 
@@ -148,58 +151,62 @@ export default class ProductForm {
     this.subElements.imageListContainer.firstElementChild.append(...arr);
   }
 
-  get template() {
+  template() {
     return `
-    <form data-element="productForm" class="form-grid">
-      <div class="form-group form-group__half_left">
-        <fieldset>
-          <label class="form-label">Название товара</label>
-          <input required="" type="text" name="title" class="form-control" placeholder="Название товара">
-        </fieldset>
-      </div>
-      <div class="form-group form-group__wide">
-        <label class="form-label">Описание</label>
-        <textarea required="" class="form-control" name="description" data-element="productDescription" placeholder="Описание товара"></textarea>
-      </div>
-      <div class="form-group form-group__wide" data-element="sortable-list-container">
-        <label class="form-label">Фото</label>
-        <div data-element="imageListContainer">
-          <ul class="sortable-list">
-          </ul>
+    <div class="product-form">
+      <form data-element="productForm" class="form-grid">
+        <div class="form-group form-group__half_left">
+          <fieldset>
+            <label class="form-label">Название товара</label>
+            <input required="" type="text" name="title" class="form-control" placeholder="Название товара">
+          </fieldset>
         </div>
-        <button type="button" name="uploadImage" class="button-primary-outline"><span>Загрузить</span></button>
-      </div>
-      <div class="form-group form-group__half_left">
-        <label class="form-label">Категория</label>
-        <select class="form-control" name="subcategory" id="subcategory"></select>
-      </div>
-      <div class="form-group form-group__half_left form-group__two-col">
-        <fieldset>
-          <label class="form-label">Цена ($)</label>
-          <input required="" type="number" name="price" class="form-control" placeholder="100">
-        </fieldset>
-        <fieldset>
-          <label class="form-label">Скидка ($)</label>
-          <input required="" type="number" name="discount" class="form-control" placeholder="0">
-        </fieldset>
-      </div>
-      <div class="form-group form-group__part-half">
-        <label class="form-label">Количество</label>
-        <input required="" type="number" class="form-control" name="quantity" placeholder="1">
-      </div>
-      <div class="form-group form-group__part-half">
-        <label class="form-label">Статус</label>
-        <select class="form-control" name="status">
-          <option value="1">Активен</option>
-          <option value="0">Неактивен</option>
-        </select>
-      </div>
-      <div class="form-buttons">
-        <button type="submit" name="save" class="button-primary-outline">
-          Сохранить товар
-        </button>
-      </div>
-    </form>`;
+        <div class="form-group form-group__wide">
+          <label class="form-label">Описание</label>
+          <textarea required="" class="form-control" name="description" data-element="productDescription" placeholder="Описание товара"></textarea>
+        </div>
+        <div class="form-group form-group__wide" data-element="sortable-list-container">
+          <label class="form-label">Фото</label>
+          <div data-element="imageListContainer">
+            <ul class="sortable-list">
+            </ul>
+          </div>
+          <button type="button" name="uploadImage" class="button-primary-outline"><span>Загрузить</span></button>
+        </div>
+        <div class="form-group form-group__half_left">
+          <label class="form-label">Категория</label>
+          <select class="form-control" name="subcategory" id="subcategory">
+          ${this.renderCategories()}
+          </select>
+        </div>
+        <div class="form-group form-group__half_left form-group__two-col">
+          <fieldset>
+            <label class="form-label">Цена ($)</label>
+            <input required="" type="number" name="price" class="form-control" placeholder="100">
+          </fieldset>
+          <fieldset>
+            <label class="form-label">Скидка ($)</label>
+            <input required="" type="number" name="discount" class="form-control" placeholder="0">
+          </fieldset>
+        </div>
+        <div class="form-group form-group__part-half">
+          <label class="form-label">Количество</label>
+          <input required="" type="number" class="form-control" name="quantity" placeholder="1">
+        </div>
+        <div class="form-group form-group__part-half">
+          <label class="form-label">Статус</label>
+          <select class="form-control" name="status">
+            <option value="1">Активен</option>
+            <option value="0">Неактивен</option>
+          </select>
+        </div>
+        <div class="form-buttons">
+          <button type="submit" name="save" class="button-primary-outline">
+            Сохранить товар
+          </button>
+        </div>
+      </form>
+    </div>`;
   }
 
   getFormData() {
@@ -238,7 +245,7 @@ export default class ProductForm {
       const event = this.isEdit ? new CustomEvent("product-updated", { detail}) : new CustomEvent("product-saved", {detail});
       this.element.dispatchEvent(event);
     } catch (e) {
-      throw new Error(e)
+      throw new Error(e);
     }
   }
 
@@ -262,30 +269,40 @@ export default class ProductForm {
     this.images = images;
   }
 
-  async fetchProduct() {
+  fetchProduct() {
     const formDataUrl = new URL('/api/rest/products', BACKEND_URL);
 
     formDataUrl.searchParams.set('id', this.productId);
 
-    const res = await fetchJson(formDataUrl);
+    return fetchJson(formDataUrl);
+  }
 
-    this.product = res.length ? res[0] : {};
-    this.setFormFields();
+  renderForm() {
+    const element = document.createElement('div');
+    element.innerHTML = this.template();
+
+    this.element = element.firstElementChild;
+    this.subElements = this.getSubElements();
   }
 
   async render () {
-    this.element = document.createElement('div');
-    this.element.className = 'product-form';
-    this.element.innerHTML = this.template;
-    this.subElements = this.getSubElements();
+    const categoriesPromises = this.fetchCategories();
+    const productPromise = this.isEdit
+      ? this.fetchProduct()
+      : Promise.resolve(this.formData);
+    
+    const [categoriesData, productResponse] = await Promise.all([categoriesPromises, productPromise]);
+    
+    this.product = productResponse.length ? productResponse.at(0) : productResponse;
+    this.categories = categoriesData;
 
-    if (this.isEdit) {
-      await this.fetchProduct();
+    this.renderForm();
+
+    if (this.product) {
+      this.setFormFields();
+      this.renderImageList();
+      this.initEventListeners();
     }
-
-    this.renderImageList();
-    this.fetchCategories();
-    this.initEventListeners();
 
     return this.element;
   }
