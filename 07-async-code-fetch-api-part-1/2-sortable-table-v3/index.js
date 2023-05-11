@@ -87,10 +87,9 @@ export default class SortableTable {
     this.end = end;
 
     this.render();
-    this.updateComponent();
   }
 
-  render() {
+  async render() {
 
     const wrapper = document.createElement('div');
 
@@ -100,14 +99,18 @@ export default class SortableTable {
 
     this.element = element;
     this.subElements = this.getSubElements(element);
-  }
 
-  async updateComponent () {
     const {id, order} = this.sorted;
     const data = await this.loadData(id, order, this.start, this.end);
 
     this.renderRows(data);
     this.initEventListeners();
+
+    if (this.isSortLocally) {
+      this.sortOnClient(this.sorted.id, this.sorted.order);
+    } else {
+      this.sortOnClient(this.sorted.id, this.sorted.order);
+    }
   }
 
   toggleLoader (action = '') {
