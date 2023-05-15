@@ -6,8 +6,8 @@ const BACKEND_URL = 'https://course-js.javascript.ru';
 
 export default class ProductForm {
 
-  onSubmit = (e) => {
-    e.preventDefault();
+  onSubmit = (event) => {
+    event.preventDefault();
     this.save();
   }
 
@@ -20,7 +20,7 @@ export default class ProductForm {
     document.body.appendChild(input);
     
     input.addEventListener('change', async () => {
-      const file = input.files[0];
+      const [file] = input.files;
 
       if (!file) { return; }
   
@@ -29,8 +29,9 @@ export default class ProductForm {
   
       formData.append("image", file);
 
-      this.subElements.productForm.uploadImage.classList.add("is-loading");
-      this.subElements.productForm.uploadImage.disabled = true;
+      const { uploadImage } = this.subElements.productForm;
+      uploadImage.classList.add("is-loading");
+      uploadImage.disabled = true;
 
       try {
         const url = new URL('https://api.imgur.com/3/image');
@@ -54,8 +55,9 @@ export default class ProductForm {
       } catch (e) {
         throw new Error(e);
       } finally {
-        this.subElements.productForm.uploadImage.classList.remove("is-loading");
-        this.subElements.productForm.uploadImage.disabled = false;
+        const { uploadImage } = this.subElements.productForm;
+        uploadImage.classList.remove("is-loading");
+        uploadImage.disabled = false;
       }
     });
 
@@ -80,8 +82,8 @@ export default class ProductForm {
 
   renderCategories() {
     const result = [];
-    for (let category of this.categories) {
-      for (let subcategory of category.subcategories) {
+    for (const category of this.categories) {
+      for (const subcategory of category.subcategories) {
         result.push(new Option(category.title + " > " + subcategory.title, subcategory.id));
       }
     }
@@ -139,7 +141,7 @@ export default class ProductForm {
 
     const listItems = [];
 
-    for (let image of this.images) {
+    for (const image of this.images) {
       listItems.push(this.getImageListItemTemplate(image));
     }
 
@@ -242,7 +244,7 @@ export default class ProductForm {
     
     try {
       const detail = await fetchJson(url, params);
-      const event = this.isEdit ? new CustomEvent("product-updated", { detail}) : new CustomEvent("product-saved", {detail});
+      const event = this.isEdit ? new CustomEvent("product-updated", { detail }) : new CustomEvent("product-saved", { detail });
       this.element.dispatchEvent(event);
     } catch (e) {
       throw new Error(e);
